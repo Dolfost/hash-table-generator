@@ -19,8 +19,8 @@ class ChainHashTable {
 
 		ChainHashTable(int desiredSize, int (*hashFunc)(T, int), int loadFact = 20);
 
-	private:
-		int tableSize;
+    // private:
+        int tableSize;
 		int tableCount;
 		int loadFactor;
 		int (*hashFunction)(T vlaue, int size);
@@ -64,8 +64,6 @@ template<class T>
 void ChainHashTable<T>::insert(T value) {
 	int index = hashFunction(value, tableSize);
 
-	/* std::cout << index << " " << value << std::endl << std::flush; */
-
 	if (table[index] == nullptr)
 		table[index] = new ChainHashTableNode<T>;
 
@@ -98,13 +96,13 @@ void ChainHashTable<T>::rehash() {
 
 	int index;
 	LinkedListNode<T>* temp;
-	LinkedListNode<T>* temp2;
 	for (int i = 0; i < oldSize; i++) {
 		if (oldTable[i] == nullptr)
 			continue;
 		for (temp = oldTable[i]->list.head; temp; temp = temp->next) {
 			index = hashFunction(temp->data, tableSize);
-			table[index] = new ChainHashTableNode<T>;
+            if (table[index] == nullptr)
+                table[index] = new ChainHashTableNode<T>;
 			table[index]->list.insertFront(temp->data);
 		}
 	}
