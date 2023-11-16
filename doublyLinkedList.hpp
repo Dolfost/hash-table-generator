@@ -26,10 +26,10 @@ public:
 
     LinkedListNode<T>* insertFront(T);
     LinkedListNode<T>* insertBack(T);
-    T removeFront();
-    T removeBack();
+    void removeFront();
+    void removeBack();
     bool isEmpty();
-	T remove(T value);
+    void remove(LinkedListNode<T>* node);
     void display();
     int length();
     LinkedListNode<T>* search(T);
@@ -40,8 +40,7 @@ public:
  
 };
  
-template<class T>
-DoublyLinkedList<T>::DoublyLinkedList() {
+template<class T> DoublyLinkedList<T>::DoublyLinkedList() {
     head = tail = nullptr;
     size = 0;
 }
@@ -84,32 +83,28 @@ LinkedListNode<T>* DoublyLinkedList<T>::insertBack(T value) {
 }
 
 template<class T>
-T DoublyLinkedList<T>::remove(T value) {
-	LinkedListNode<T>* node = search(value);
-
+void DoublyLinkedList<T>::remove(LinkedListNode<T>* node) {
 	if (!node)
-		return nullptr;
+        return;
 
 	if (node == head)
-		return removeFront();
-	else if (node == tail)
-		return removeBack();
+        removeFront();
+    else if (node == tail) {
+        qDebug() << "tail:";
+        removeBack();
+    }
 	else {
-		T deletedValue = node->data;
-
-		node->left->right = node->right;
-		node->rigth->left = node->left;
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
  
         delete node;
  
         size--;
- 
-        return deletedValue;
     }
 }
  
 template<class T>
-T DoublyLinkedList<T>::removeFront() {
+void DoublyLinkedList<T>::removeFront() {
     if (!isEmpty())
     {
         LinkedListNode<T>* temp = head;
@@ -117,20 +112,16 @@ T DoublyLinkedList<T>::removeFront() {
         {
             tail = nullptr;
         }
-        T deletedValue = temp->data;
         head = head->next;
  
         delete temp;
  
         size--;
- 
-        return deletedValue;
     }
-    return nullptr;
 }
  
 template<class T>
-T DoublyLinkedList<T>::removeBack() {
+void DoublyLinkedList<T>::removeBack() {
     if (!isEmpty())
     {
         LinkedListNode<T>* temp = tail;
@@ -138,17 +129,13 @@ T DoublyLinkedList<T>::removeBack() {
         {
             head = nullptr;
         }
-        T* deletedValue = temp->data;
-        tail->next = nullptr;
+        tail->prev->next = nullptr;
         tail = tail->prev;
  
         delete temp;
  
         size--;
- 
-        return deletedValue;
     }
-    return nullptr;
 }
  
 template<class T>
@@ -182,7 +169,7 @@ template<class T>
 LinkedListNode<T>* DoublyLinkedList<T>::search(T value) {
     if (!isEmpty()) {
         LinkedListNode<T>* temp = head;
-        while (temp) {
+        while (temp != nullptr) {
             if (temp->data == value)
             {
 				return temp;

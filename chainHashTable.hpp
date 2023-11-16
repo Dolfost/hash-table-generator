@@ -13,16 +13,16 @@ class ChainHashTable {
 	public:
 		void insert(T value);
 		LinkedListNode<T>* search(T value);
-		T remove(T value);
+        void remove(T value);
 		int size(void);
 		int count(void);
 
-		ChainHashTable(int desiredSize, int (*hashFunc)(T, int), int loadFact = 20);
+        ChainHashTable(int desiredSize, double loadFact, int (*hashFunc)(T, int));
 
     // private:
         int tableSize;
 		int tableCount;
-		int loadFactor;
+        double loadFactor;
 		int (*hashFunction)(T vlaue, int size);
 		ChainHashTableNode<T>** table;
 
@@ -30,7 +30,7 @@ class ChainHashTable {
 };
 
 template<class T>
-ChainHashTable<T>::ChainHashTable(int desiredSize, int (*hashFunc)(T, int), int loadFact) {
+ChainHashTable<T>::ChainHashTable(int desiredSize, double loadFact, int (*hashFunc)(T, int)) {
 	tableSize = desiredSize;
 	loadFactor = loadFact;
 	tableCount = 0;
@@ -70,25 +70,30 @@ void ChainHashTable<T>::insert(T value) {
 	table[index]->list.insertFront(value);
 	tableCount++;
 
-	if (tableCount/tableSize > loadFactor)
+    if (double(tableCount)/tableSize > loadFactor)
 		rehash();
 }
 
 template<class T>
-T ChainHashTable<T>::remove(T value) {
-	int index = hashFunciton(value, tableSize);
+void ChainHashTable<T>::remove(T value) {
+        int index = hashFunction(value, tableSize);
 
-	T status = table[index]->list.remove(value);
+    if (table[index] == nullptr)
+        return;
 
-	if (status == nullptr)
-		tableCount--;
+    LinkedListNode<T>* res = table[index]->list.search(value);
+    if (res != nullptr) {
+        qDebug() << value << res->data;
+        table[index]->list.remove(res);
+        tableCount--;
+    }
 }
 	
 template<class T>
 void ChainHashTable<T>::rehash() {
 	int oldSize = tableSize;
 	ChainHashTableNode<T>** oldTable = table;
-	tableSize *= 2;
+    tableSize = tableSize*2 + 1;
 	
 	table = new ChainHashTableNode<T>*[tableSize];
 	for (int i = 0; i < tableSize; i++)
