@@ -10,6 +10,7 @@
 #include <QTreeWidgetItem>
 #include <QMessageBox>
 #include <QRandomGenerator>
+#include <QCryptographicHash>
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -31,16 +32,24 @@ public:
 private slots:
     void on_insertPushButton_clicked();
 
-    void on_pushButton_clicked();
+    void on_removePushButton_clicked();
+
+    void on_createPushButton_clicked();
+
+    void on_refreshAutomaticallycheckBox_stateChanged(int arg1);
+
+    void on_searchPushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene* scene;
+    QGraphicsScene* scene = nullptr;
 
-    ChainHashTable<QString>* table;
+    ChainHashTable<QString>* table = nullptr;
+    LinkedListNode<QString>* lastFound = nullptr;
 
     void drawTable();
     void refresh();
+    void autoRefresh();
 
 };
 #endif // MAINWINDOW_H

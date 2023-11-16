@@ -2,12 +2,13 @@
 #include "ui_mainwindow.h"
 
 int hash(QString str, int size) {
-    int hashCode = 0;
-    for (int i = 0; i < str.length(); i++) {
+    long long hashCode = 0;
+    for (long long i = 0; i < str.length(); i++) {
         hashCode += str[i].unicode() * std::pow(31, i);
     }
     return hashCode % size;
 }
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,34 +17,30 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     this->setWindowTitle("Hash table generator");
+    ui->loadFactorSpinBox->setValue(1.25);
 
-    table = new ChainHashTable<QString>(10, hash, 2);
+    table = new ChainHashTable<QString>(5, 1.25, hash);
+
     scene = new QGraphicsScene();
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     scene->setBackgroundBrush(Qt::black);
     ui->graphicsView->setScene(scene);
 
-    table->insert("hello");
-    table->insert("im new value");
-    table->insert("table moment");
-    table->insert("table xd");
-    table->insert("ta432ble xd");
-    table->insert("noway");
-    table->insert("for real");
-    table->insert("bro");
-    table->insert("how");
-    table->insert("1");
-    table->insert("2");
-    table->insert("3");
-    table->insert("4");
-    table->insert("5");
+    table->insert("cow");
+    table->insert("cat");
+    table->insert("bird");
+    table->insert("cockroach");
+    table->insert("butterfly");
+    table->insert("ant");
 
-    drawTable();
+    refresh();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete scene;
+    delete table;
 }
 
 void MainWindow::drawTable() {
@@ -96,6 +93,14 @@ void MainWindow::drawTable() {
                 listItem->setZValue(2);
                 listItem->setRect(x, y, sizeX, sizeY);
                 listItem->setBrush(QBrush(Qt::green));
+                if (temp == lastFound) {
+                    QPen pen;
+                    pen.setColor(Qt::yellow);
+                    pen.setWidth(3);
+                    listItem->setPen(pen);
+                } else
+                    listItem->setPen(QPen(Qt::white));
+                lineItem->setZValue(1);
                 scene->addItem(listItem);
 
                 QGraphicsTextItem* label = new QGraphicsTextItem(temp->data);
@@ -115,16 +120,48 @@ void MainWindow::drawTable() {
 void MainWindow::on_insertPushButton_clicked()
 {
     table->insert(ui->stringLineEdit->text());
-}
-
-
-void MainWindow::on_pushButton_clicked() {
-    refresh();
+    autoRefresh();
 }
 
 void MainWindow::refresh(void) {
     scene->clear();
     drawTable();
     scene->setSceneRect(scene->itemsBoundingRect());
+    ui->countLineEdit->setText(QString::number(table->count()));
+    ui->sizeLineEdit->setText(QString::number(table->size()));
 }
 
+void MainWindow::autoRefresh(void) {
+    if (ui->refreshAutomaticallycheckBox->isChecked())
+        refresh();
+}
+
+
+void MainWindow::on_removePushButton_clicked()
+{
+    table->remove(ui->stringLineEdit->text());
+    autoRefresh();
+}
+
+void MainWindow::on_createPushButton_clicked()
+{
+    delete table;
+    table = new ChainHashTable<QString>(ui->sizeSpinBox->value(), ui->loadFactorSpinBox->value(), hash);
+    autoRefresh();
+}
+
+
+void MainWindow::on_refreshAutomaticallycheckBox_stateChanged(int arg1)
+{
+    if (arg1 == true)
+        refresh();
+}
+
+
+void MainWindow::on_searchPushButton_clicked()
+{
+    lastFound = table->search(ui->stringLineEdit->text());
+    if (lastFound != nullptr) {
+        autoRefresh();
+    }
+}
