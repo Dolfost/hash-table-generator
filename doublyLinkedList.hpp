@@ -90,7 +90,6 @@ void DoublyLinkedList<T>::remove(LinkedListNode<T>* node) {
 	if (node == head)
         removeFront();
     else if (node == tail) {
-        qDebug() << "tail:";
         removeBack();
     }
 	else {
